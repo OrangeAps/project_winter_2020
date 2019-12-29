@@ -1,11 +1,6 @@
 import pygame
 from game_script import load as load_script
-from load_image import load_image
-
-
-# переменные
-XLenWin = 800
-YLenWin = 450
+from miscell import load_image, C_BLACK, XLenWin, YLenWin
 
 # дерево кода
 screen = pygame.display.set_mode((XLenWin, YLenWin))
@@ -20,7 +15,8 @@ while start == 0:
             start = 1
     pygame.display.flip()
 if start == 1:
-    load_script()
+    screen.fill(C_BLACK)
+    load_script(screen)
 elif start == 2:
     pygame.quit()
     exit('закрыто')

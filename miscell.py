@@ -1,6 +1,11 @@
 import os, pygame
 
 
+C_BLACK = pygame.Color('black')
+XLenWin = 800
+YLenWin = 450
+
+
 def load_image(name, ColorKey=None):
     fullname = os.path.join('pictures', name)
     image = pygame.image.load(fullname)
@@ -10,5 +15,6 @@ def load_image(name, ColorKey=None):
         image = image.convert()
         image.set_colorkey(ColorKey)
     else:
-        image = image.convert_alpha()
+        pass
+        # image = image.convert_alpha()
     return image
