@@ -15,6 +15,5 @@ def load_image(name, ColorKey=None):
         image = image.convert()
         image.set_colorkey(ColorKey)
     else:
-        pass
-        # image = image.convert_alpha()
+        image = image.convert_alpha()
     return image
