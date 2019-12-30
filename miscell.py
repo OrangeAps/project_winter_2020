@@ -2,8 +2,14 @@ import os, pygame
 
 
 C_BLACK = pygame.Color('black')
+sky = pygame.Color(127, 199, 255)
 XLenWin = 800
 YLenWin = 450
+FPS = 100
+clock = pygame.time.Clock()
+
+
+screen = pygame.display.set_mode((XLenWin, YLenWin))
 
 
 def load_image(name, ColorKey=None):

@@ -2,7 +2,7 @@ import pygame
 from game_script import load as load_script
 from miscell import load_image, C_BLACK, XLenWin, YLenWin
 
-# дерево кода
+
 screen = pygame.display.set_mode((XLenWin, YLenWin))
 screen.blit(pygame.transform.scale(load_image('fon_general_win.jpg'), (XLenWin, YLenWin)), (0, 0))
 start = 0
@@ -19,4 +19,4 @@ if start == 1:
     load_script(screen)
 elif start == 2:
     pygame.quit()
-    exit('закрыто')
+    exit('закрыт main')
