@@ -6,6 +6,8 @@ sky = pygame.Color(127, 199, 255)
 XLenWin = 800
 YLenWin = 450
 FPS = 100
+F_jump = 20
+g = 3
 clock = pygame.time.Clock()
 
 
