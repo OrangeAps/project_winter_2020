@@ -47,7 +47,7 @@ def main(screen, lvl):
         if mario.jump:
             mario.t_jump += clock.get_time()
         else:
-            mario.t_fall += clock.get_time() 
+            mario.t_fall += clock.get_time()
         mario.update_coords(obstructions_group)
         clock.tick(FPS)
     pygame.quit()
