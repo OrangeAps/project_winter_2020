@@ -38,24 +38,20 @@ def main(screen, lvl):
                 mario.jump = True
                 mario.t = 0
             if event.type == EventFps:
-                mario_group.draw(screen)
                 obstructions_group.draw(screen)
+                mario_group.draw(screen)
                 pygame.display.flip()
                 screen.fill(sky)
             if event.type == EventMarioRun:
                 mario.update()
-        if mario.jump:
-            mario.t_jump += clock.get_time()
-        else:
-            mario.t_fall += clock.get_time()
         mario.update_coords(obstructions_group)
         clock.tick(FPS)
     pygame.quit()
     exit('закрыт код')
 
 
-def load(screen):
-    main(screen)
+def load(screen, lvl):
+    main(screen, lvl)
 
 
 def load_lvl(lvl, m_g, o_g):

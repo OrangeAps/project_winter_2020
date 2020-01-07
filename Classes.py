@@ -24,8 +24,8 @@ class Mario(pygame.sprite.Sprite):
         self.frames_run = 8
         self.current_frame = 0
         self.collision = False
-        self.t_jump = 0
-        self.t_fall = 0
+        self.multipl_jump = 1.0
+        self.multipl_fall = 0.0
 
     def cut_sheet(self, sheet, columns, rows):
         rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -40,11 +40,15 @@ class Mario(pygame.sprite.Sprite):
         return listt
 
     def update_coords(self, o_g):
+        n, turpl = self.chek_collision(o_g)
         if self.jump:
             self.t_fall = 0
             self.jumpf()
+        elif n:
+            self.multipl_fall = 0.0
+            self.rect.y = turpl[0].rect.y - self.rect[3]
         else:
-            self.fall(o_g)
+            self.fall()
 
     def update(self):
         if self.run:
@@ -60,23 +64,34 @@ class Mario(pygame.sprite.Sprite):
                 self.image = self.mario_l
 
     def jumpf(self):
-        v = Physics.V_mario
-        g = Physics.g
-        t = self.t_jump
-
-        Y = round(v * t - (g * t ** 2) / 2)
-        if Y > 0:
-            self.rect.y -= Y
-        if Y <= 0:
-            self.t_jump = 0
+        self.multipl_fall = 0.0
+        self.rect.y -= Physics.V_jump * self.multipl_jump
+        self.multipl_jump -= 0.1
+        if self.multipl_jump <= 0:
+            self.multipl_jump = 1.0
             self.jump = False
 
-    def fall(self, o_g):
-        g = Physics.g
-        t = self.t_fall
 
-        Y = round((g * (t / 1000) ** 2) / 2)
-        self.rect.y += Y
+    def fall(self):
+        self.rect.y += Physics.g * self.multipl_fall
+        self.multipl_fall += 0.1
+
+    def chek_collision(self, o_g):
+        blocks = pygame.sprite.spritecollide(self, o_g, False)
+        TrueOrFalse = False
+        if len(blocks) != 0:
+            TrueOrFalse = True
+            top = blocks[0]
+            right = blocks[0]
+            left = blocks[0]
+            down = blocks[0]
+            for i in blocks:
+                if i.rect.y > self.rect.y + self.rect[1] and top.rect.y > i.rect.y + i.rect[1]:
+                     top = i
+        if TrueOrFalse:
+            return TrueOrFalse, (top, down, right, left)
+        else:
+            return TrueOrFalse, None
 
 
 class Dirth(pygame.sprite.Sprite):
@@ -90,6 +105,6 @@ class Dirth(pygame.sprite.Sprite):
 
 
 class Physics():
-    V_jump = 23
-    g = 100
+    V_jump = 25
+    g = 10
     V_mario = 6
