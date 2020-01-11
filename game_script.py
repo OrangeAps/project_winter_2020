@@ -14,29 +14,29 @@ def main(screen, lvl):
     while run:
         mario.run = False
         mario.collision = False
+        mario.right, mario.left = False, False
         key = pygame.key.get_pressed()
         if key[pygame.K_a] or key[pygame.K_LEFT]:
-            mario.rect.x -= Physics.V_mario
-            mario.direct = False
+            mario.left = True
             mario.run = True
         if key[pygame.K_d] or key[pygame.K_RIGHT]:
-            mario.rect.x += Physics.V_mario
-            mario.direct = True
-            if not mario.run:
-                mario.run = True
-            else:
+            mario.right = True
+            if mario.run:
                 mario.run = False
+            else:
+                mario.run = True
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT or mario.rect.y > 1000:
                 run = False
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                mario.direct = True
+                mario.right = True
             if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                mario.direct = False
+                mario.left = True
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 mario.jump = True
-                mario.t = 0
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
+                mario.down = True
             if event.type == EventFps:
                 obstructions_group.draw(screen)
                 mario_group.draw(screen)
@@ -66,6 +66,8 @@ def load_lvl(lvl, m_g, o_g):
                 pass
             if lines[i][j] == '#':
                 Dirth(j, i, o_g)
+            if lines[i][j] == '$':
+                Brick(j, i, o_g)
             if lines[i][j] == '@':
                 mario = Mario(j, i - 1, m_g)
     return mario

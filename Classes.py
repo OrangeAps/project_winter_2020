@@ -18,7 +18,9 @@ class Mario(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = reformat_coords(x, y)
         self.jump = False
         self.run = False
-        self.direct = True # True - право, False - лево
+        self.right = True
+        self.left = False
+        self.down = False
         self.frames_for_run_r = self.cut_sheet(Mario.mario_run_r, 4, 2)
         self.frames_for_run_l = self.cut_sheet(Mario.mario_run_l, 4, 2)
         self.frames_run = 8
@@ -41,27 +43,38 @@ class Mario(pygame.sprite.Sprite):
 
     def update_coords(self, o_g):
         n, turpl = self.chek_collision(o_g)
-        if self.jump:
-            self.t_fall = 0
-            self.jumpf()
-        elif n:
-            self.multipl_fall = 0.0
-            self.rect.y = turpl[0].rect.y - self.rect[3]
+        if self.down:
+            n = False
+        if n:
+            if self.left:
+                self.rect.x -= Physics.V_mario
+            if self.right:
+                self.rect.x += Physics.V_mario
+            if self.jump:
+                self.jumpf()
+            else:
+                self.rect.y = turpl[0].rect.y - (self.rect[3] - 1)
         else:
-            self.fall()
+            if self.left:
+                self.rect.x -= Physics.V_mario
+            if self.right:
+                self.rect.x += Physics.V_mario
+            if self.jump:
+                self.jumpf()
+            else:
+                self.fall()
 
     def update(self):
+        if self.right:
+            self.image = self.mario_r
+        elif self.left:
+            self.image = self.mario_l
         if self.run:
             self.current_frame = (self.current_frame + 1) % self.frames_run
-            if self.direct:
+            if self.right:
                 self.image = self.frames_for_run_r[self.current_frame]
-            else:
+            elif self.left:
                 self.image = self.frames_for_run_l[self.current_frame]
-        else:
-            if self.direct:
-                self.image = self.mario_r
-            else:
-                self.image = self.mario_l
 
     def jumpf(self):
         self.multipl_fall = 0.0
@@ -86,8 +99,10 @@ class Mario(pygame.sprite.Sprite):
             left = blocks[0]
             down = blocks[0]
             for i in blocks:
-                if i.rect.y > self.rect.y + self.rect[1] and top.rect.y > i.rect.y + i.rect[1]:
-                     top = i
+                if i.rect.y > self.rect.y + self.rect[3] and top.rect.y > i.rect.y + i.rect[1]:
+                    top = i
+                if i.rect.y + i.rect[3] < self.rect.y and down.rect.y + down.rect[3] < i.rect.y:
+                    down = i
         if TrueOrFalse:
             return TrueOrFalse, (top, down, right, left)
         else:
@@ -100,6 +115,16 @@ class Dirth(pygame.sprite.Sprite):
     def __init__(self, x, y, group):
         super().__init__(group)
         self.image = Dirth.dirth
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = reformat_coords(x, y)
+
+
+class Brick(pygame.sprite.Sprite):
+    brick = load_image('brick.png')
+
+    def __init__(self, x, y, group):
+        super().__init__(group)
+        self.image = Brick.brick
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = reformat_coords(x, y)
 
