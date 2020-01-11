@@ -13,7 +13,9 @@ EventFps = 1
 FPS = 50
 clock = pygame.time.Clock()
 EventMarioRun = 2
-MarioFrameRate = 45
+MarioFrameRate = 128
+right = 'r'
+left = 'left'
 
 
 screen = pygame.display.set_mode((XLenWin, YLenWin))

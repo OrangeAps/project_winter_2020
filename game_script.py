@@ -1,7 +1,7 @@
 import pygame
 from MiscellDefAndVars import EventMarioRun, MarioFrameRate, lvl
 from MiscellDefAndVars import sky, XLenWin, YLenWin, clock, FrameRate, EventFps, FPS
-from Classes import *
+from Classes import Mario, Dirth, Brick
 
 
 def main(screen, lvl):
@@ -14,6 +14,10 @@ def main(screen, lvl):
     while run:
         mario.run = False
         mario.collision = False
+        if mario.right:
+            mario.last_direct = Mario.rightv
+        elif mario.left:
+            mario.last_direct = Mario.leftv
         mario.right, mario.left = False, False
         key = pygame.key.get_pressed()
         if key[pygame.K_a] or key[pygame.K_LEFT]:

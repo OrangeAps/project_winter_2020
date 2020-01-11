@@ -1,5 +1,5 @@
 import pygame
-from MiscellDefAndVars import load_image, format_size, reformat_coords
+from MiscellDefAndVars import load_image, format_size, reformat_coords, right, left
 
 
 class Mario(pygame.sprite.Sprite):
@@ -7,6 +7,8 @@ class Mario(pygame.sprite.Sprite):
     mario_l = load_image('mario_l.png', -1)
     mario_run_r = load_image('mario_run_r.png', -1)
     mario_run_l = load_image('mario_run_l.png', -1)
+    rightv = right
+    leftv = left
 
     def __init__(self, x, y, group):
         super().__init__(group)
@@ -28,6 +30,8 @@ class Mario(pygame.sprite.Sprite):
         self.collision = False
         self.multipl_jump = 1.0
         self.multipl_fall = 0.0
+        self.last_direct = Mario.rightv
+        self.coords_block = int()
 
     def cut_sheet(self, sheet, columns, rows):
         rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -43,8 +47,10 @@ class Mario(pygame.sprite.Sprite):
 
     def update_coords(self, o_g):
         n, turpl = self.chek_collision(o_g)
-        if self.down:
+        if self.down and self.rect.y < self.coords_block + 32:
             n = False
+        if self.rect.y >= self.coords_block + 32:
+            self.down = False
         if n:
             if self.left:
                 self.rect.x -= Physics.V_mario
@@ -53,7 +59,8 @@ class Mario(pygame.sprite.Sprite):
             if self.jump:
                 self.jumpf()
             else:
-                self.rect.y = turpl[0].rect.y - (self.rect[3] - 1)
+                self.rect.y = turpl[1].rect.y - (self.rect.height - 1)
+                self.coords_block = turpl[1].rect.y
         else:
             if self.left:
                 self.rect.x -= Physics.V_mario
@@ -65,10 +72,16 @@ class Mario(pygame.sprite.Sprite):
                 self.fall()
 
     def update(self):
-        if self.right:
-            self.image = self.mario_r
-        elif self.left:
-            self.image = self.mario_l
+        if not self.run:
+            if self.right:
+                self.image = self.mario_r
+            elif self.left:
+                self.image = self.mario_l
+            else:
+                if self.last_direct == self.rightv:
+                    self.image = self.mario_r
+                elif self.last_direct == self.leftv:
+                    self.image = self.mario_l
         if self.run:
             self.current_frame = (self.current_frame + 1) % self.frames_run
             if self.right:
@@ -94,15 +107,17 @@ class Mario(pygame.sprite.Sprite):
         TrueOrFalse = False
         if len(blocks) != 0:
             TrueOrFalse = True
-            top = blocks[0]
+            top = None
             right = blocks[0]
-            left = blocks[0]
-            down = blocks[0]
+            left = None
+            down = None
             for i in blocks:
-                if i.rect.y > self.rect.y + self.rect[3] and top.rect.y > i.rect.y + i.rect[1]:
-                    top = i
-                if i.rect.y + i.rect[3] < self.rect.y and down.rect.y + down.rect[3] < i.rect.y:
+                if i.rect.y > self.rect.y + (self.rect.height - 32) and (down is None or down.rect.y > i.rect.y + i.rect.height):
                     down = i
+                if i.rect.y + (i.rect.height - 32) < self.rect.y and (top is None or top.rect.y + top.rect.height < i.rect.y):
+                    top = i
+                if i.rect.x + (i.rect.width - 10) < self.rect.x and (left is None or left.rect.x + left.rect.width < i.rect.x):
+                    left = i
         if TrueOrFalse:
             return TrueOrFalse, (top, down, right, left)
         else:
