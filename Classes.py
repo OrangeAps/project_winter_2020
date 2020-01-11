@@ -52,9 +52,9 @@ class Mario(pygame.sprite.Sprite):
         if self.rect.y >= self.coords_block + 32:
             self.down = False
         if n:
-            if self.left and not turpl[3]:
+            if self.left and turpl[3]:
                 self.rect.x -= Physics.V_mario
-            if self.right:
+            if self.right and turpl[2]:
                 self.rect.x += Physics.V_mario
             if self.jump:
                 self.jumpf()
@@ -108,16 +108,16 @@ class Mario(pygame.sprite.Sprite):
         if len(blocks) != 0:
             TrueOrFalse = True
             top = None
-            right = blocks[0]
+            right = True
             left = True
             down = None
             for i in blocks:
                 if i.rect.y > self.rect.y + (self.rect.height - 32) and (down is None or down.rect.y > i.rect.y + i.rect.height):
                     down = i
-                if i.rect.y + (i.rect.height - 32) < self.rect.y and (top is None or top.rect.y + top.rect.height < i.rect.y):
-                    top = i
-                if i.rect.x + (i.rect.width - 10) < self.rect.x and (left is True or left.rect.x + left.rect.width < i.rect.x):
+                if i.rect.x + (i.rect.width - 10) < self.rect.x and i.rect.y + i.rect.height <= self.rect.y + (self.rect.height - 3) and left is True:
                     left = False
+                if i.rect.x > self.rect.x + (self.rect.width - 10) and i.rect.y + i.rect.height <= self.rect.y + (self.rect.height - 3) and right is True:
+                    right = False
         if TrueOrFalse:
             return TrueOrFalse, (top, down, right, left)
         else:
