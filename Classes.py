@@ -14,6 +14,7 @@ class Mario(pygame.sprite.Sprite):
         super().__init__(group)
         self.group = group
         self.life = 10
+        self.score = 0
         self.image = Mario.mario_r
         self.image_run = Mario.mario_run_r
         self.rect = self.image.get_rect()
@@ -32,6 +33,7 @@ class Mario(pygame.sprite.Sprite):
         self.multipl_fall = 0.0
         self.last_direct = Mario.rightv
         self.coords_block = int()
+        self.jumps = 0
 
     def cut_sheet(self, sheet, columns, rows):
         rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -45,31 +47,49 @@ class Mario(pygame.sprite.Sprite):
         listt = format_size(listt)
         return listt
 
-    def update_coords(self, o_g):
+    def update_coords(self, o_g, c_o, b_g, e_g):
         n, turpl = self.chek_collision(o_g)
         if self.down and self.rect.y < self.coords_block + 32:
             n = False
         if self.rect.y >= self.coords_block + 32:
             self.down = False
         if n:
-            if self.left and turpl[3]:
-                self.rect.x -= Physics.V_mario
-            if self.right and turpl[2]:
-                self.rect.x += Physics.V_mario
+            self.jumps = 0
+            if self.left and turpl[2]:
+                o_g.update(Physics.V_mario)
+                c_o.update(Physics.V_mario)
+                b_g.update(Physics.V_mario)
+                e_g.update(Physics.V_mario)
+            if self.right and turpl[1]:
+                o_g.update(-Physics.V_mario)
+                c_o.update(-Physics.V_mario)
+                b_g.update(-Physics.V_mario)
+                e_g.update(-Physics.V_mario)
             if self.jump:
                 self.jumpf()
             else:
-                self.rect.y = turpl[1].rect.y - (self.rect.height - 1)
-                self.coords_block = turpl[1].rect.y
+                try:
+                    self.rect.y = turpl[0].rect.y - (self.rect.height - 1)
+                    self.coords_block = turpl[0].rect.y
+                except:
+                    self.fall()
         else:
             if self.left:
-                self.rect.x -= Physics.V_mario
+                o_g.update(Physics.V_mario)
+                c_o.update(Physics.V_mario)
+                b_g.update(Physics.V_mario)
+                e_g.update(Physics.V_mario)
             if self.right:
-                self.rect.x += Physics.V_mario
+                o_g.update(-Physics.V_mario)
+                c_o.update(-Physics.V_mario)
+                b_g.update(-Physics.V_mario)
+                e_g.update(-Physics.V_mario)
             if self.jump:
                 self.jumpf()
             else:
                 self.fall()
+        coins = pygame.sprite.spritecollide(self, c_o, True)
+        self.score += len(coins)
 
     def update(self):
         if not self.run:
@@ -96,6 +116,7 @@ class Mario(pygame.sprite.Sprite):
         if self.multipl_jump <= 0:
             self.multipl_jump = 1.0
             self.jump = False
+            self.jumps += 1
 
 
     def fall(self):
@@ -107,7 +128,6 @@ class Mario(pygame.sprite.Sprite):
         TrueOrFalse = False
         if len(blocks) != 0:
             TrueOrFalse = True
-            top = None
             right = True
             left = True
             down = None
@@ -119,7 +139,7 @@ class Mario(pygame.sprite.Sprite):
                 if i.rect.x > self.rect.x + (self.rect.width - 10) and i.rect.y + i.rect.height <= self.rect.y + (self.rect.height - 3) and right is True:
                     right = False
         if TrueOrFalse:
-            return TrueOrFalse, (top, down, right, left)
+            return TrueOrFalse, (down, right, left)
         else:
             return TrueOrFalse, None
 
@@ -133,6 +153,9 @@ class Dirth(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = reformat_coords(x, y)
 
+    def update(self, x):
+        self.rect.x += x
+
 
 class Brick(pygame.sprite.Sprite):
     brick = load_image('brick.png')
@@ -143,8 +166,107 @@ class Brick(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = reformat_coords(x, y)
 
+    def update(self, x):
+        self.rect.x += x
+
+
+class Coin(pygame.sprite.Sprite):
+    coin = load_image('coin.png', -1)
+
+    def __init__(self, x, y, group):
+        super().__init__(group)
+        self.image = Coin.coin
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = reformat_coords(x, y)
+
+    def update(self, x):
+        self.rect.x += x
+
+
+class BlockForEnemys(pygame.sprite.Sprite):
+    img = load_image('block_invis.png')
+
+    def __init__(self, x, y, group):
+        super().__init__(group)
+        self.image = BlockForEnemys.img
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = reformat_coords(x, y)
+
+    def update(self, x):
+        self.rect.x += x
+
+
+class EnemyTurtle(pygame.sprite.Sprite):
+    turtle_r = load_image('turtle_r.png', -1)
+    turtle_l = load_image('turtle_l.png', -1)
+
+    def __init__(self, x, y, group):
+        super().__init__(group)
+        self.image = EnemyTurtle.turtle_r
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = reformat_coords(x, y)
+        self.direct = True  # true - вправо, false - влево
+
+    def update(self, x):
+        self.rect.x += x
+
+    def update_coords(self, g):
+        n = self.chek_collision(g)
+        if n:
+            if self.direct:
+                self.direct = False
+                self.image = EnemyTurtle.turtle_l
+            else:
+                self.direct = True
+                self.image = EnemyTurtle.turtle_r
+        if not self.direct:
+            self.rect.x -= Physics.V_enemy
+        if self.direct:
+            self.rect.x += Physics.V_enemy
+
+    def chek_collision(self, g):
+        blocks = pygame.sprite.spritecollide(self, g, False)
+        n = False
+        if len(blocks) != 0:
+            n = True
+        return n
+
+
+class EnemyMushrum(pygame.sprite.Sprite):
+    img = load_image('angry_mushrum.png', -1)
+
+    def __init__(self, x, y, group):
+        super().__init__(group)
+        self.image = EnemyMushrum.img
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = reformat_coords(x, y)
+        self.direct = True  # true - вправо, false - влево
+
+    def update(self, x):
+        self.rect.x += x
+
+    def update_coords(self, g):
+        n = self.chek_collision(g)
+        if n:
+            if self.direct:
+                self.direct = False
+            else:
+                self.direct = True
+        if not self.direct:
+            self.rect.x -= Physics.V_enemy
+        if self.direct:
+            self.rect.x += Physics.V_enemy
+
+    def chek_collision(self, g):
+        blocks = pygame.sprite.spritecollide(self, g, False)
+        n = False
+        if len(blocks) != 0:
+            n = True
+        return n
+
 
 class Physics():
     V_jump = 25
     g = 10
     V_mario = 6
+    V_enemy = 2

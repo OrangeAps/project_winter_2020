@@ -3,6 +3,7 @@ import os, pygame
 
 C_BLACK = pygame.Color('black')
 C_GREEN_TEXT = pygame.Color(84, 255, 159)
+C_BLUE = pygame.Color(31, 174, 233)
 sky = pygame.Color(127, 199, 255)
 XLenWin = 800
 YLenWin = 450
@@ -19,7 +20,7 @@ left = 'left'
 
 
 screen = pygame.display.set_mode((XLenWin, YLenWin))
-lvl = '1'
+lvl = 1
 
 
 def load_image(name, ColorKey=None):
@@ -43,3 +44,18 @@ def format_size(ListWithImg):
 
 def reformat_coords(x, y):
     return x*32, y*32
+
+
+def process_coords(yw, ww, hw, xm, ym, i):
+    i += 1
+    n = -1
+    if ym >= yw and ym <= yw + hw:
+        xw = 15
+        for _ in range(i):
+            if xm >= xw and xm <= xw + ww:
+                if _ == i - 1:
+                    n = 0
+                else:
+                    n = _ + 1
+            xw += ww + 15
+    return n

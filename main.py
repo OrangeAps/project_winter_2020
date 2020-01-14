@@ -16,9 +16,9 @@ text_y = 400
 text_w = text.get_width()
 text_h = text.get_height()
 start = 0
+screen.blit(text, (text_x, text_y))
+pygame.draw.rect(screen, C_GREEN_TEXT, (text_x - 10, text_y - 10, text_w + 20, text_h + 20), 2)
 while start == 0:
-    screen.blit(text, (text_x, text_y))
-    pygame.draw.rect(screen, C_GREEN_TEXT, (text_x - 10, text_y - 10, text_w + 20, text_h + 20), 2)
     events = pygame.event.get()
     for event in events:
         if event.type == pygame.QUIT:
@@ -29,7 +29,7 @@ while start == 0:
 if start == 1:
     screen.fill(C_BLACK)
     lvl = load_choose_lvl(screen)
-    # load_script(screen, '1')
+    load_script(screen, lvl, fon)
 elif start == 2:
     pygame.quit()
     exit('закрыт main')
