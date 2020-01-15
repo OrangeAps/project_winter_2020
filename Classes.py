@@ -34,6 +34,7 @@ class Mario(pygame.sprite.Sprite):
         self.last_direct = Mario.rightv
         self.coords_block = int()
         self.jumps = 0
+        self.m = 1
 
     def cut_sheet(self, sheet, columns, rows):
         rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -49,6 +50,23 @@ class Mario(pygame.sprite.Sprite):
 
     def update_coords(self, o_g, c_o, b_g, e_g):
         n, turpl = self.chek_collision(o_g)
+        enemys = pygame.sprite.spritecollide(self, e_g, False)
+        if len(enemys) != 0:
+            for i in enemys:
+                self.life -= 1
+                self.jump = True
+                if i.rect.x < self.rect.x:
+                    o_g.update(-Physics.V_mario)
+                    c_o.update(-Physics.V_mario)
+                    b_g.update(-Physics.V_mario)
+                    e_g.update(-Physics.V_mario)
+                    self.m = 0
+                if i.rect.x > self.rect.x:
+                    o_g.update(Physics.V_mario)
+                    c_o.update(Physics.V_mario)
+                    b_g.update(Physics.V_mario)
+                    e_g.update(Physics.V_mario)
+                    self.m = 2
         if self.down and self.rect.y < self.coords_block + 32:
             n = False
         if self.rect.y >= self.coords_block + 32:
@@ -66,7 +84,7 @@ class Mario(pygame.sprite.Sprite):
                 b_g.update(-Physics.V_mario)
                 e_g.update(-Physics.V_mario)
             if self.jump:
-                self.jumpf()
+                self.jumpf(self.m, o_g, c_o, b_g, e_g)
             else:
                 try:
                     self.rect.y = turpl[0].rect.y - (self.rect.height - 1)
@@ -85,7 +103,7 @@ class Mario(pygame.sprite.Sprite):
                 b_g.update(-Physics.V_mario)
                 e_g.update(-Physics.V_mario)
             if self.jump:
-                self.jumpf()
+                self.jumpf(self.m, o_g, c_o, b_g, e_g)
             else:
                 self.fall()
         coins = pygame.sprite.spritecollide(self, c_o, True)
@@ -109,10 +127,20 @@ class Mario(pygame.sprite.Sprite):
             elif self.left:
                 self.image = self.frames_for_run_l[self.current_frame]
 
-    def jumpf(self):
+    def jumpf(self, n, o_g, c_o, b_g, e_g): # n = 0 - влево, n = 1 - стой, n = 2 - вправо
         self.multipl_fall = 0.0
         self.rect.y -= Physics.V_jump * self.multipl_jump
         self.multipl_jump -= 0.1
+        if n == 0:
+            o_g.update(-Physics.V_mario)
+            c_o.update(-Physics.V_mario)
+            b_g.update(-Physics.V_mario)
+            e_g.update(-Physics.V_mario)
+        if n == 2:
+            o_g.update(-Physics.V_mario)
+            c_o.update(-Physics.V_mario)
+            b_g.update(-Physics.V_mario)
+            e_g.update(-Physics.V_mario)
         if self.multipl_jump <= 0:
             self.multipl_jump = 1.0
             self.jump = False
@@ -267,6 +295,6 @@ class EnemyMushrum(pygame.sprite.Sprite):
 
 class Physics():
     V_jump = 25
-    g = 10
+    g = 9 
     V_mario = 6
     V_enemy = 2

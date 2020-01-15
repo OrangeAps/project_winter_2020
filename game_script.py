@@ -4,7 +4,8 @@ from MiscellDefAndVars import sky, XLenWin, YLenWin, clock, FrameRate, EventFps,
 from Classes import Mario, Dirth, Brick, Coin, BlockForEnemys, EnemyTurtle, EnemyMushrum
 
 
-def main(screen, lvl, fon):
+def main(screen, lvl):
+    fon = pygame.font.Font(None, 50)
     pygame.time.set_timer(EventFps, FrameRate)
     pygame.time.set_timer(EventMarioRun, MarioFrameRate)
     mario_group = pygame.sprite.Group()
@@ -12,6 +13,11 @@ def main(screen, lvl, fon):
     coin_group = pygame.sprite.Group()
     block_for_enemy_group = pygame.sprite.Group()
     enemys_g = pygame.sprite.Group()
+    heath = pygame.sprite.Sprite()
+    heath.image = load_image('hearth.png', -1)
+    heath.rect = heath.image.get_rect()
+    heath_g = pygame.sprite.Group(heath)
+    heath.rect.x, heath.rect.y = 0, YLenWin - 64
     coin = pygame.sprite.Sprite()
     coin.image = load_image('coin.png', -1)
     coin.rect = coin.image.get_rect()
@@ -25,6 +31,8 @@ def main(screen, lvl, fon):
     coin_group.update(mario.rect.x - x)
     block_for_enemy_group.update(mario.rect.x - x)
     enemys_g.update(mario.rect.x - x)
+    h_text_x = 32
+    h_text_y = YLenWin - 64
     text_x = 32
     text_y = YLenWin - 32
     while run:
@@ -47,7 +55,7 @@ def main(screen, lvl, fon):
                 mario.run = True
         events = pygame.event.get()
         for event in events:
-            if event.type == pygame.QUIT or mario.rect.y > YLenWin:
+            if event.type == pygame.QUIT or mario.rect.y > YLenWin or mario.life <= 0:
                 run = False
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
                 mario.right = True
@@ -60,9 +68,12 @@ def main(screen, lvl, fon):
                 mario.down = True
             if event.type == EventFps:
                 screen.fill(sky)
+                t_h = fon.render('X' + str(mario.life), 0, C_BLACK)
+                screen.blit(t_h, (h_text_x, h_text_y))
                 text = fon.render('Х' + str(mario.score), 0, C_BLACK)
                 screen.blit(text, (text_x, text_y))
                 coin_g.draw(screen)
+                heath_g.draw(screen)
                 obstructions_group.draw(screen)
                 coin_group.draw(screen)
                 enemys_g.draw(screen)
@@ -70,16 +81,22 @@ def main(screen, lvl, fon):
                 pygame.display.flip()
             if event.type == EventMarioRun:
                 mario.update()
-        mario.update_coords(obstructions_group, coin_group, enemys_g, block_for_enemy_group)
+        mario.update_coords(obstructions_group, coin_group, block_for_enemy_group, enemys_g)
         for _ in enemys_g:
             _.update_coords(block_for_enemy_group)
         clock.tick(FPS)
-    pygame.quit()
-    exit('закрыт код')
+    if event.type == pygame.QUIT:
+        pygame.quit()
+        exit('закрыто')
+    elif mario.rect.y > YLenWin or mario.life <= 0:
+        pygame.quit()
+        exit('МАРИО ПОМЕР')
 
 
-def load(screen, lvl, fon):
-    main(screen, lvl, fon)
+
+
+def load(screen, lvl):
+    main(screen, lvl)
 
 
 def load_lvl(lvl, m_g, o_g, c_o, en_b_g, en_g):
@@ -113,5 +130,4 @@ if __name__ == '__main__':
     pygame.init()
     screen = pygame.display.set_mode((XLenWin, YLenWin))
     screen.fill(sky)
-    fon = pygame.font.Font(None, 50)
-    main(screen, lvl, fon)
+    main(screen, lvl)

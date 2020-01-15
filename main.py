@@ -29,7 +29,7 @@ while start == 0:
 if start == 1:
     screen.fill(C_BLACK)
     lvl = load_choose_lvl(screen)
-    load_script(screen, lvl, fon)
+    load_script(screen, lvl)
 elif start == 2:
     pygame.quit()
     exit('закрыт main')
